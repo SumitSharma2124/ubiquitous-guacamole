@@ -547,8 +547,16 @@ describe("Arena endpoints", () => {
 
     expect(newResponse.statusCode).toBe(404)
   })
+  test("Adding an element works as expected", async () =>){
+    await axios.post(`${BACKEND_URL}/api/v1/space/element`, {
+      "elemetID": element1Id,
+      "spaceID": spaceId,
+      "x": 50,
+      "y": 20
+    });
+
+    const newResponse = await axios.get(`${BACKEND_URL}/api/v1/space/${spaceId}`);
+
+    expect(newResponse.data.elements.length).toBe(3)
+  }
 })
-
-
-expect(newResponse.statusCode).toBe(404)
-  
