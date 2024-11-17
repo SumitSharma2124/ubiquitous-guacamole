@@ -548,3 +548,7 @@ describe("Arena endpoints", () => {
     expect(newResponse.statusCode).toBe(404)
   })
 })
+
+
+expect(newResponse.statusCode).toBe(404)
+  
