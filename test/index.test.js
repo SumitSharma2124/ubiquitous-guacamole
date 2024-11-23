@@ -51,7 +51,7 @@ describe("Authentication", () => {
       password
     }); 
 
-    expect(respone.statusCode).toBe(200)
+    expect(response.statusCode).toBe(200)
     expect(response.body.token).toBeDefined()
   })
 
@@ -386,7 +386,7 @@ const respone = await axios.delete(`${BACKEND_URL}/api/v1/space/randomIdDoesntEx
     expect(response.data.spaces.length).toBe(1)
     expect(filteredSpace).toBeDefined()
   }) 
-})
+});
 
 describe("Arena endpoints", () => {
   let mapdId;
@@ -546,7 +546,9 @@ describe("Arena endpoints", () => {
     });
 
     expect(newResponse.statusCode).toBe(404)
-  )
+  })
+})
+
 describe("Admin Endpoints", () => {
   let adminToken; 
   let adminId; 
@@ -627,10 +629,106 @@ describe("Admin Endpoints", () => {
       }
     })
 
-    expect(elementResponse.statusCode).toBe(403)
-    expect(mapResponse.statusCode).toBe(403)
-    expect(avatarResponse.statusCode).tobe(403)
-    expect(avatarResponse.statusCode).toBe(403)
+    expect(elementResponse.status).toBe(403)
+    expect(mapResponse.status).toBe(403)
+    expect(avatarResponse.status).tobe(403)
+    expect(updateElementResponse.status).toBe(403)
   })
-  
+
+  test("Admin is able to hit admin Endpoints", async () => {
+     const elementResponse = await axios.post(`${BACKEND_URL}/api/v1/admin/element`, {
+        "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+        "width": 1,
+        "height": 1,
+        "static": true 
+      }, {
+        headers: {
+        authorization: `Bearer ${adminToken}`
+        }
+      });
+
+    const mapResponse = await axious.post(`${ BACKEND_URL}/api/v1/admin/map`, {
+      "thumbnail": "https://thumbnail.com/a.png",
+      "dimensions": "100x200",
+      "defaultElements": []
+    }, {
+      headers: {
+          authorization: `Bearer ${adminToken}`
+        }
+    })  
+
+    const avatarResponse = await axios.put(`${BACKEND_URL}/api/v1/admin/avatar`, {
+      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
+      "name": "Timmy"        
+    }, {
+      headers: {
+        "authorization": `Bearer ${adminToken}`
+      }
+    })
+
+
+    expect(elementResponse.status).toBe(200)
+    expect(mapResponse.status).toBe(200)
+    expect(avatarResponse.status).tobe(200)
+  })
+
+  test("Admin is able to update the imageUrl for an element", async () => {
+    const elementResponse = await axios.post(`${BACKEND_URL}/api/v1/admin/element`, {
+      "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+      "width": 1,
+      "height": 1,
+      "static": true 
+    }, {
+      headers: {
+        authorization: `Bearer ${userToken}`
+      }
+    });
+
+    const updateElementResponse = await axios.put(`${BACKEND_URL}/api/v1/admin/element/123`, {
+      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",      
+    }, {
+      headers: {
+        "authorization": `Bearer ${userToken}`
+      }
+    })
+
+    expect(updateElementResponse.status).toBe(200);
+  })
+});
+
+describe("Websocker tests", () => {
+  let adminToken; 
+  let adminUserId; 
+  let userToken; 
+  let userId;
+
+  beforeAll( async() => {
+    const username = `sumit-${Math.random()}`
+    const password = "123456"
+
+    const adminSignupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
+      username,
+      password,
+      role: "admin"
+    })
+
+    const adminSigninResponse = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+      username,
+      password
+    })
+    
+    adminUserId = adminSignupResponse.data.userId;
+    adminToken = adminSigninResponse.data.token; 
+
+    const userSignupResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`,  {
+      username: username +`-user`,
+      password
+    })
+
+    const userSigninResponse = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+      username: username +`-user`,
+      password
+    })
+  })
 })
+
